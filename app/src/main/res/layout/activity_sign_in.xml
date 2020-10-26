@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mainBackground"
+    tools:context="com.moskofidi.mychat.signInActivity.RegisterActivity">
+
+
+    <EditText
+        android:id="@+id/email_input"
+        android:layout_width="320dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="338dp"
+        android:autofillHints="Email"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/colorMainFont"
+        android:textColorHint="@color/colorDarkFont"
+        android:theme="@style/EditTextTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/password_input"
+        android:layout_width="320dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:autofillHints="Password"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:textColor="@color/colorMainFont"
+        android:textColorHint="@color/colorDarkFont"
+        android:theme="@style/EditTextTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/email_input" />
+
+    <Button
+        android:id="@+id/btnSignIn"
+        android:layout_width="320dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorInMessage"
+        android:hint="@string/sign_in"
+        android:textColorHint="@color/colorDarkFont"
+        app:layout_constraintEnd_toEndOf="@+id/password_input"
+        app:layout_constraintStart_toStartOf="@+id/password_input"
+        app:layout_constraintTop_toBottomOf="@+id/password_input" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

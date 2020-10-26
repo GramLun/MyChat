@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mainBackground"
+    tools:context="com.moskofidi.mychat.signInActivity.RegisterActivity">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/profilePic_reg"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="180dp"
+        android:contentDescription="@string/profile_pic"
+        android:scaleType="centerCrop"
+        android:src="@drawable/baseline_portrait_black_48"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:riv_corner_radius="15dp"
+        app:riv_border_width="0dp" />
+
+
+    <EditText
+        android:id="@+id/name_input_reg"
+        android:layout_width="320dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:autofillHints="Name"
+        android:hint="@string/name"
+        android:inputType="textPersonName"
+        android:textColor="@color/colorMainFont"
+        android:textColorHint="@color/colorDarkFont"
+        android:theme="@style/EditTextTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profilePic_reg" />
+
+    <EditText
+        android:id="@+id/email_input_reg"
+        android:layout_width="320dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:autofillHints="Email"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/colorMainFont"
+        android:textColorHint="@color/colorDarkFont"
+        android:theme="@style/EditTextTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name_input_reg" />
+
+    <EditText
+        android:id="@+id/password_input_reg"
+        android:layout_width="320dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:autofillHints="Password"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:textColor="@color/colorMainFont"
+        android:textColorHint="@color/colorDarkFont"
+        android:theme="@style/EditTextTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/email_input_reg" />
+
+    <com.shobhitpuri.custombuttons.GoogleSignInButton
+        android:id="@+id/btnGoogleSignIn"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/sign_in_google"
+        app:layout_constraintStart_toStartOf="@+id/password_input_reg"
+        app:layout_constraintEnd_toEndOf="@+id/password_input_reg"
+        app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="300dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="@color/colorInMessage"
+        android:hint="@string/register"
+        android:textColorHint="@color/colorDarkFont"
+        app:layout_constraintEnd_toEndOf="@+id/password_input_reg"
+        app:layout_constraintStart_toStartOf="@+id/password_input_reg"
+        app:layout_constraintTop_toBottomOf="@+id/password_input_reg" />
+
+    <TextView
+        android:id="@+id/btnHaveAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/already_have_an_account"
+        android:textColor="@color/colorDarkFont"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/password_input_reg"
+        app:layout_constraintStart_toStartOf="@+id/password_input_reg"
+        app:layout_constraintTop_toBottomOf="@+id/btnGoogleSignIn" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorInMessage">
+
+    <TextView
+        android:id="@+id/name_row_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="start"
+        android:text="User's name"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/you_row_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/you_row_out"
+        android:textColor="@color/colorDarkFont"
+        app:layout_constraintBottom_toBottomOf="@+id/latest_message_row_out"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_row_out" />
+
+    <TextView
+        android:id="@+id/latest_message_row_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="start"
+        android:paddingBottom="5dp"
+        android:text="Latest Message"
+        android:textColor="@color/colorMainFont"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/you_row_out"
+        app:layout_constraintTop_toBottomOf="@+id/name_row_out" />
+
+    <TextView
+        android:id="@+id/time_row_out"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="end"
+        android:text="Time"
+        android:textColor="@color/colorMainFont"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/separator_chat_out"
+        android:layout_width="385dp"
+        android:layout_height="0.8dp"
+        android:background="@color/mainBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

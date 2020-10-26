@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/bubble_outcoming"
+        android:maxWidth="330dp"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/text_message_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/helvetica"
+            android:lineSpacingExtra="2dp"
+            android:lineSpacingMultiplier="0.8"
+            android:maxWidth="270dp"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="4dp"
+            android:text="@string/account_welcomeback"
+            android:textColor="@color/colorMainFont"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/time_message_out"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/time_message_out"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="@font/helvetica"
+            android:paddingEnd="18dp"
+            android:paddingBottom="4dp"
+            android:text="11:40"
+            android:textColor="@color/colorLightBlueFont"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="RtlSymmetry,SmallSp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

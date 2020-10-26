@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "800665398278",
+    "firebase_url": "https://mychat-1145b.firebaseio.com",
+    "project_id": "mychat-1145b",
+    "storage_bucket": "mychat-1145b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800665398278:android:1574974b2ccb1c5a6ea787",
+        "android_client_info": {
+          "package_name": "com.moskofidi.mychat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "800665398278-aoiebnoere7e8n91bmsiatpv72bd5dg4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.moskofidi.mychat",
+            "certificate_hash": "c09aed70fb6567abb331ad3a60ab534bca4e50dc"
+          }
+        },
+        {
+          "client_id": "800665398278-cvebi4shf5323e7aumgh9iqibihdfjgd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABr8yuFMX3ssya9Rh_FlF3xdW54_1WvWA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "800665398278-cvebi4shf5323e7aumgh9iqibihdfjgd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
