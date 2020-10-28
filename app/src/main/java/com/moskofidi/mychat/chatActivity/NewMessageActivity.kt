@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -67,7 +68,7 @@ class NewMessageActivity : AppCompatActivity() {
 
                 snapshot.children.forEach {
                     val user = it.getValue(User::class.java)
-                    if (user != null)
+                    if (user!!.id != FirebaseAuth.getInstance().currentUser!!.uid)
                         adapter.add(UserItem(user))
                 }
                 adapter.setOnItemClickListener { item, _ ->
@@ -106,7 +107,7 @@ class UserItem(val user: User) : Item<ViewHolder>() {
 
         val storageRef = FirebaseStorage.getInstance()
             .getReference("profile_pics/${user.id}")
-        storageRef.getBytes(1920 * 1920)
+        storageRef.getBytes(4000 * 4000)
             .addOnSuccessListener {
                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                 viewHolder.itemView.profilePic_user_row.setImageBitmap(bitmap)

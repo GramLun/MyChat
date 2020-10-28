@@ -2,18 +2,20 @@ package com.moskofidi.mychat.signInActivity
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.firebase.ui.auth.ui.AcquireEmailHelper.RC_SIGN_IN
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -34,14 +36,15 @@ import com.moskofidi.mychat.R
 import com.moskofidi.mychat.chatActivity.LatestMessagesActivity
 import com.moskofidi.mychat.dataClass.User
 import kotlinx.android.synthetic.main.activity_register.*
-import java.util.*
+import java.io.File
+import java.io.FileOutputStream
 
 @RequiresApi(Build.VERSION_CODES.M)
 class RegisterActivity : AppCompatActivity() {
 
     private val auth: FirebaseAuth = Firebase.auth
     private val SELECT_IMAGE = 1
-    private val REQUEST_CODE = 2
+    private val REQUEST_PERMISSIONS_CODE = 2
     private lateinit var uri: Uri
     private var nameList: MutableList<String> = mutableListOf()
 
@@ -69,16 +72,25 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         btnRegister.setOnClickListener {
+            btnRegister.isClickable = false
             fetchNames()
+
             val email = email_input_reg.text.toString()
             val password = password_input_reg.text.toString()
 
-            if (email.isEmpty() || password.isEmpty())
-                Toast.makeText(this, "Введите email/пароль", Toast.LENGTH_SHORT).show()
-            else if (nameList.contains(name_input_reg.text.toString()))
+            if (nameList.contains(name_input_reg.text.toString())) {
+                btnRegister.isClickable = true
                 Toast.makeText(this, "Имя пользователя занято", Toast.LENGTH_SHORT).show()
-            else {
-                emailRegister(email, password)
+            } else {
+                if (email.isEmpty() || password.isEmpty()) {
+                    btnRegister.isClickable = true
+                    Toast.makeText(this, "Введите email/пароль", Toast.LENGTH_SHORT).show()
+                } else if (profilePic_reg.drawable == null) {
+                    btnRegister.isClickable = true
+                    Toast.makeText(this, "Выберите фото профиля", Toast.LENGTH_SHORT).show()
+                } else {
+                    emailRegister(email, password)
+                }
             }
         }
 
@@ -87,7 +99,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         profilePic_reg.setOnClickListener {
-            checkPermissionForGallery()
+            checkPermissions()
         }
     }
 
@@ -149,6 +161,7 @@ class RegisterActivity : AppCompatActivity() {
                         .setDisplayName(name_input_reg.text.toString()).build()
                     user?.updateProfile(update)?.addOnCompleteListener {
                         addUser(auth.currentUser!!)
+                        addUserToCache(auth.currentUser!!)
                     }
                     uploadImg(user!!)
 
@@ -192,6 +205,19 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+    private fun addUserToCache(user: FirebaseUser) {
+        // Without profile pic
+        val userPath = File(externalCacheDir, "/me")
+        userPath.mkdirs()
+        val userFile = File(userPath.toString(), user.displayName.toString() + ".txt")
+
+        try {
+            userFile.writeText(user.displayName.toString())
+        } catch (e: Exception) {
+            Toast.makeText(this, "e: Exception", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun fetchNames() {
         val ref = FirebaseDatabase.getInstance().getReference("/names")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -209,12 +235,20 @@ class RegisterActivity : AppCompatActivity() {
         })
     }
 
-    private fun checkPermissionForGallery() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+    private fun checkPermissions() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+            + ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             pickImg()
         } else {
             if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                android.app.AlertDialog.Builder(this)
+                AlertDialog.Builder(this)
                     .setTitle("Нужно разрешение")
                     .setCancelable(true)
                     .setMessage("Это разрешение нужно для загрузки изображений")
@@ -222,7 +256,7 @@ class RegisterActivity : AppCompatActivity() {
                         ActivityCompat.requestPermissions(
                             this@RegisterActivity,
                             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                            REQUEST_CODE
+                            REQUEST_PERMISSIONS_CODE
                         )
                     }
                     .setNegativeButton("Нет") { dialog, _ ->
@@ -232,8 +266,11 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 ActivityCompat.requestPermissions(
                     this@RegisterActivity,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    REQUEST_CODE
+                    arrayOf(
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ),
+                    REQUEST_PERMISSIONS_CODE
                 )
             }
         }
@@ -245,7 +282,7 @@ class RegisterActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == REQUEST_PERMISSIONS_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pickImg()
             } else {

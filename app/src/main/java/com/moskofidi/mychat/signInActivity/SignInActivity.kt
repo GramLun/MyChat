@@ -2,6 +2,7 @@ package com.moskofidi.mychat.signInActivity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -17,16 +18,22 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        btnSignIn.isClickable = true
         setContentView(R.layout.activity_sign_in)
 
         btnSignIn.setOnClickListener {
-            val email = email_input.text.toString()
-            val password = password_input.text.toString()
+            btnSignIn.isClickable = false
 
-            if (email.isEmpty() || password.isEmpty())
+            if (email_input.text.isEmpty() || password_input.text.isEmpty()) {
+                btnSignIn.isClickable = true
                 Toast.makeText(this, "Введите email/пароль", Toast.LENGTH_SHORT).show()
-            else
+            } else {
+                sign_in_progress_bar.visibility = View.VISIBLE
+                val email = email_input.text.toString()
+                val password = password_input.text.toString()
+
                 emailSignIn(email, password)
+            }
         }
     }
 
@@ -34,11 +41,14 @@ class SignInActivity : AppCompatActivity() {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    sign_in_progress_bar.visibility = View.GONE
                     Toast.makeText(this, "Sign in:success", Toast.LENGTH_SHORT).show()
                     val user = auth.currentUser
                     startActivity(Intent(this, LatestMessagesActivity::class.java))
                     this.finish()
                 } else {
+                    btnSignIn.isClickable = true
+                    sign_in_progress_bar.visibility = View.GONE
                     Toast.makeText(this, "Wrong email/password", Toast.LENGTH_SHORT).show()
                 }
             }

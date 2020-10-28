@@ -175,8 +175,9 @@ class ChatActivity : AppCompatActivity() {
                 if (message != null) {
                     if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
                         adapter.add(MessageOutItem(message))
-                    else
+                    else {
                         adapter.add(MessageInItem(message))
+                    }
                 }
                 list_of_messages.scrollToPosition(adapter.itemCount - 1)
             }
@@ -197,18 +198,6 @@ class ChatActivity : AppCompatActivity() {
                 println("The read failed: " + databaseError.code)
             }
         })
-    }
-
-    private fun refactorMessage() : String {
-        val message = message_input.text.toString()
-        var isNewline = true
-        for (char in message) {
-            if (char == '\n' && isNewline)
-                message.removeRange(0, 1)
-            else
-                isNewline = false
-        }
-        return message
     }
 }
 
