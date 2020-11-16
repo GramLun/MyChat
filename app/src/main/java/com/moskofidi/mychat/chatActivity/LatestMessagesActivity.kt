@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -13,12 +12,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.drawable.toBitmap
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
-import com.moskofidi.mychat.chatActivity.ChatInItem
 import com.moskofidi.mychat.dataClass.Message
 import com.moskofidi.mychat.dataClass.User
 import com.moskofidi.mychat.receiver.ConnectionListener
@@ -27,14 +24,15 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_latest_messages.*
-import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.item_chat_in_row.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 
+@InternalCoroutinesApi
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class LatestMessagesActivity : AppCompatActivity() {
 
@@ -42,9 +40,9 @@ class LatestMessagesActivity : AppCompatActivity() {
     private val connectionListener = ConnectionListener(this)
     private val latestMessagesMap = HashMap<String, Message>()
 
-    private var images = arrayOf<File>()
-    private var names = arrayOf<File>()
-    private var messages = arrayOf<File>()
+//    private var images = arrayOf<File>()
+//    private var names = arrayOf<File>()
+//    private var messages = arrayOf<File>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +74,7 @@ class LatestMessagesActivity : AppCompatActivity() {
                 ).putExtra(NewMessageActivity.USER_KEY, row.chatUser)
             )
         }
+
         fetchChats()
     }
 
@@ -101,13 +100,13 @@ class LatestMessagesActivity : AppCompatActivity() {
                 startActivity(Intent(this, NewMessageActivity::class.java))
             }
             R.id.btnSignOut -> {
-                deleteCache()
+//                deleteCache()
                 FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(this, RegisterActivity::class.java))
                 this.finish()
             }
             R.id.btnDeleteAccount -> {
-                deleteCache()
+//                deleteCache()
                 val user = FirebaseAuth.getInstance().currentUser
                 user?.delete()
                 FirebaseDatabase.getInstance()
@@ -127,39 +126,38 @@ class LatestMessagesActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun deleteCache() {
-        val path = externalCacheDir
-
-        val imgPath = File(path, "/profile_pics")
-        if (imgPath.isDirectory) {
-            val children: Array<String> = imgPath.list()
-            for (i in children.indices) {
-                val file = File(imgPath, children[i])
-                file.deleteRecursively()
-            }
-        }
-
-        val userPath = File(path, "/users")
-        if (userPath.isDirectory) {
-            val children: Array<String> = userPath.list()
-            for (i in children.indices) {
-                val file = File(userPath, children[i])
-                file.deleteRecursively()
-            }
-        }
-
-        val latestMsgPath = File(path, "/latest_messages")
-        if (latestMsgPath.isDirectory) {
-            val children: Array<String> = latestMsgPath.list()
-            for (i in children.indices) {
-                val file = File(latestMsgPath, children[i])
-                file.deleteRecursively()
-            }
-        }
-    }
+//    private fun deleteCache() {
+//        val path = externalCacheDir
+//
+//        val imgPath = File(path, "/profile_pics")
+//        if (imgPath.isDirectory) {
+//            val children: Array<String> = imgPath.list()
+//            for (i in children.indices) {
+//                val file = File(imgPath, children[i])
+//                file.deleteRecursively()
+//            }
+//        }
+//
+//        val userPath = File(path, "/users")
+//        if (userPath.isDirectory) {
+//            val children: Array<String> = userPath.list()
+//            for (i in children.indices) {
+//                val file = File(userPath, children[i])
+//                file.deleteRecursively()
+//            }
+//        }
+//
+//        val latestMsgPath = File(path, "/latest_messages")
+//        if (latestMsgPath.isDirectory) {
+//            val children: Array<String> = latestMsgPath.list()
+//            for (i in children.indices) {
+//                val file = File(latestMsgPath, children[i])
+//                file.deleteRecursively()
+//            }
+//        }
+//    }
 
     private fun fetchChats() {
-        refreshChatView()
         val user = FirebaseAuth.getInstance().currentUser
 
         val ref = FirebaseDatabase.getInstance().getReference("/latest_messages/${user!!.uid}")
@@ -198,105 +196,88 @@ class LatestMessagesActivity : AppCompatActivity() {
     private fun refreshChatView() {
         latest_empty.visibility = View.GONE
         adapter.clear()
-        if (latestMessagesMap.isEmpty()) {
-            var count = 0
-            while (count < File(externalCacheDir, "/users").listFiles().size) {
-                adapter.add(ChatInItem(message = Message(), externalCacheDir!!, images, names, messages))
-                count++
-            }
-        } else {
-            latestMessagesMap.values.forEach {
-                adapter.add(ChatInItem(it, externalCacheDir!!, images, names, messages))
+        latestMessagesMap.values.forEach {
+            adapter.add(ChatInItem(it, externalCacheDir!!))
 //               if (it.senderId != user?.uid)
 //                    adapter.add(ChatInItem(it))
 //              else
 //                    adapter.add(ChatOutItem(it))
-            }
         }
     }
 }
 
 class ChatInItem(
-    private val message: Message, private val path: File, private var images: Array<File>,
-    private var names: Array<File>,
-    private var messages: Array<File>
+    private val message: Message? = null, private val path: File
 ) : Item<ViewHolder>() {
     var chatUser: User? = null
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
         // load from cache
-        viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(null)
-
-        if (getCacheRow()) {
-            val option = BitmapFactory.Options()
-            option.inPreferredConfig = Bitmap.Config.ARGB_8888
-            val bitmapCache = BitmapFactory.decodeFile(images[position].toString(), option)
-            viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmapCache)
-
-            viewHolder.itemView.name_row_in.text =
-                File(names[position].toString()).readText().substringBefore('\n')
-            viewHolder.itemView.latest_message_row_in.text =
-                File(messages[position].toString()).readText().substringBefore('\n')
-
-            val string = File(messages[position].toString()).readText()
-            val time: String = string.substringAfter('\n')
-
-            val patternCache = "HH:mm"
-            val dateTimeCache = SimpleDateFormat(patternCache, Locale.US)
-            viewHolder.itemView.time_row_in.text = dateTimeCache.format(time.toLong()).toString()
-
-            val user = User(
-                File(names[position].toString()).readText().substringAfter('\n'),
-                File(names[position].toString()).readText().substringBefore('\n')
-            )
-            chatUser = user
-        }
+//        viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(null)
+//
+//        if (getCacheRow()) {
+//            val option = BitmapFactory.Options()
+//            option.inPreferredConfig = Bitmap.Config.ARGB_8888
+//            val bitmapCache = BitmapFactory.decodeFile(images[position].toString(), option)
+//            viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmapCache)
+//
+//            viewHolder.itemView.name_row_in.text =
+//                File(names[position].toString()).readText().substringBefore('\n')
+//            viewHolder.itemView.latest_message_row_in.text =
+//                File(messages[position].toString()).readText().substringBefore('\n')
+//
+//            val string = File(messages[position].toString()).readText()
+//            val time: String = string.substringAfter('\n')
+//
+//            val patternCache = "HH:mm"
+//            val dateTimeCache = SimpleDateFormat(patternCache, Locale.US)
+//            viewHolder.itemView.time_row_in.text = dateTimeCache.format(time.toLong()).toString()
+//
+//            val user = User(
+//                File(names[position].toString()).readText().substringAfter('\n'),
+//                File(names[position].toString()).readText().substringBefore('\n')
+//            )
+//            chatUser = user
+//        }
 
         // load from database
         val ref = FirebaseDatabase.getInstance().getReference("/users")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid) {
-                    if (viewHolder.itemView.name_row_in.text.isEmpty()) {
-                        chatUser =
-                            snapshot.child(message.receiverId).getValue(User::class.java)
-                        viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+                if (message != null) {
+                    if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid) {
+                            chatUser =
+                                snapshot.child(message.receiverId).getValue(User::class.java)
+                            viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+
+                            val storageRef = FirebaseStorage.getInstance()
+                                .getReference("profile_pics/${message.receiverId}")
+                            storageRef.getBytes(4000 * 4000)
+                                .addOnSuccessListener {
+                                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                                    viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
+                                }
+                    } else {
+                            chatUser =
+                                snapshot.child(message.senderId).getValue(User::class.java)
+                            viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+
+                            val storageRef = FirebaseStorage.getInstance()
+                                .getReference("profile_pics/${message.senderId}")
+                            storageRef.getBytes(4000 * 4000)
+                                .addOnSuccessListener {
+                                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                                    viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
+                                }
                     }
 
-                    if (viewHolder.itemView.profilePic_chat_row_in.drawable == null) {
-                        val storageRef = FirebaseStorage.getInstance()
-                            .getReference("profile_pics/${message.receiverId}")
-                        storageRef.getBytes(4000 * 4000)
-                            .addOnSuccessListener {
-                                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                                viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
-                                addRowCache(chatUser!!, bitmap)
-                            }
+                    if (viewHolder.itemView.latest_message_row_in.text != message.text) {
+                        val pattern = "HH:mm"
+                        val dateTime = SimpleDateFormat(pattern, Locale.US)
+                        viewHolder.itemView.time_row_in.text =
+                            dateTime.format(message.time).toString()
+                        viewHolder.itemView.latest_message_row_in.text = message.text
                     }
-                } else {
-                    if (viewHolder.itemView.name_row_in.text.isEmpty()) {
-                        chatUser =
-                            snapshot.child(message.senderId).getValue(User::class.java)
-                        viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
-                    }
-
-                    if (viewHolder.itemView.profilePic_chat_row_in.drawable == null) {
-                        val storageRef = FirebaseStorage.getInstance()
-                            .getReference("profile_pics/${message.senderId}")
-                        storageRef.getBytes(4000 * 4000)
-                            .addOnSuccessListener {
-                                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                                viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
-                                addRowCache(chatUser!!, bitmap)
-                            }
-                    }
-                }
-
-                if (viewHolder.itemView.latest_message_row_in.text != message.text) {
-                    val pattern = "HH:mm"
-                    val dateTime = SimpleDateFormat(pattern, Locale.US)
-                    viewHolder.itemView.time_row_in.text = dateTime.format(message.time).toString()
-                    viewHolder.itemView.latest_message_row_in.text = message.text
                 }
             }
 
@@ -310,103 +291,77 @@ class ChatInItem(
         return R.layout.item_chat_in_row
     }
 
-    private fun addRowCache(chatUser: User, bitmap: Bitmap) {
-        // Profile pic, name and uid
-        val imgPath = File(path, "/profile_pics/")
-        imgPath.mkdirs()
-        val imgFile = File(imgPath.toString(), chatUser.id + ".jpg")
-
-        val userPath = File(path, "/users/")
-        userPath.mkdirs()
-        val userFile = File(userPath.toString(), chatUser.name + ".txt")
-
-        val latestMsgPath = File(path, "/latest_messages/")
-        latestMsgPath.mkdirs()
-
-        val latestMsgFile = File(latestMsgPath.toString(), chatUser.id + ".txt")
-
-        try {
-            if (!imgFile.exists()) {
-                val fOut = FileOutputStream(imgFile)
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut)
-                fOut.flush()
-                fOut.close()
-            }
-
-            if (!userFile.exists())
-                userFile.writeText(chatUser.name + '\n' + chatUser.id)
-
-            if (latestMsgFile.exists())
-                latestMsgFile.writeText("")
-                latestMsgFile.writeText(message.text + '\n' + message.time)
-        } catch (e: Exception) {
-            Log.d("cache", "e: Exception")
-        }
-    }
-
-    private fun getCacheRow() : Boolean {
-        val imgPath = File(path, "/profile_pics/")
-        if (imgPath.exists()) {
-//            latest_empty.visibility = View.GONE
-            val directory = File(imgPath.toString())
-            images = directory.listFiles()
-            if (images.isEmpty())
-                return false
-        }
-
-        val userPath = File(path, "/users/")
-        if (userPath.exists()) {
-            val directory = File(userPath.toString())
-            names = directory.listFiles()
-        }
-
-        val latestMsgPath = File(path, "/latest_messages/")
-        if (latestMsgPath.exists()) {
-            val directory = File(latestMsgPath.toString())
-            messages = directory.listFiles()
-        }
-        return true
-    }
+//    private fun setCacheRow(chatUser: User, bitmap: Bitmap? = null) {
+//        // Profile pic, name and uid
+//        val imgPath = File(path, "/profile_pics/")
+//        imgPath.mkdirs()
+//        val imgFile = File(imgPath.toString(), chatUser.id + ".jpg")
+//
+//        val userPath = File(path, "/users/")
+//        userPath.mkdirs()
+//        val userFile = File(userPath.toString(), chatUser.name + ".txt")
+//
+//        val latestMsgPath = File(path, "/latest_messages/")
+//        latestMsgPath.mkdirs()
+//
+//        val latestMsgFile = File(latestMsgPath.toString(), chatUser.id + ".txt")
+//
+//        try {
+//            if (!imgFile.exists()) {
+//                val fOut = FileOutputStream(imgFile)
+//                bitmap!!.compress(Bitmap.CompressFormat.JPEG, 85, fOut)
+//                fOut.flush()
+//                fOut.close()
+//            }
+//
+//            if (!userFile.exists())
+//                userFile.writeText(chatUser.name + '\n' + chatUser.id)
+//
+//            if (message != null) {
+//                if (latestMsgFile.exists()) {
+//                    latestMsgFile.deleteRecursively()
+//                    latestMsgFile.writeText(message.text + '\n' + message.time)
+//                } else
+//                    latestMsgFile.writeText(message.text + '\n' + message.time)
+//            }
+//        } catch (e: Exception) {
+//            Log.d("cache", "e: Exception")
+//        }
+//    }
+//
+//    private fun getCacheRow(): Boolean {
+//        val imgPath = File(path, "/profile_pics/")
+//        if (imgPath.exists()) {
+//            val directory = File(imgPath.toString())
+//            images = directory.listFiles()
+//            if (images.isEmpty())
+//                return false
+//        } else {
+//            return false
+//        }
+//
+//        val userPath = File(path, "/users/")
+//        if (userPath.exists()) {
+//            val directory = File(userPath.toString())
+//            names = directory.listFiles()
+//            if (names.isEmpty())
+//                return false
+//        } else {
+//            return false
+//        }
+//
+//        val latestMsgPath = File(path, "/latest_messages/")
+//        if (latestMsgPath.exists()) {
+//            val directory = File(latestMsgPath.toString())
+//            messages = directory.listFiles()
+//            if (messages.isEmpty())
+//                return false
+//        } else {
+//            return false
+//        }
+//        return true
+//    }
 }
-
-//class CacheChatItem(
-//    private val images: Array<File>,
-//    private val names: Array<File>,
-//    private val messages: Array<File>,
-//    private val position: Int
-//) : Item<ViewHolder>() {
-//    var chatUser: User? = null
-//
-//    override fun bind(viewHolder: ViewHolder, position: Int) {
-//        val option = BitmapFactory.Options()
-//        option.inPreferredConfig = Bitmap.Config.ARGB_8888
-//        val bitmap = BitmapFactory.decodeFile(images[position].toString(), option)
-//        viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
-//
-//        viewHolder.itemView.name_row_in.text =
-//            File(names[position].toString()).readText().substringBefore('\n')
-//        viewHolder.itemView.latest_message_row_in.text =
-//            File(messages[position].toString()).readText()
-//
-//        val string = File(messages[position].toString()).readText()
-//        val time: String = string.substringAfter('\n')
-//
-//        val pattern = "HH:mm"
-//        val dateTime = SimpleDateFormat(pattern, Locale.US)
-//        viewHolder.itemView.time_row_in.text = dateTime.format(time.toLong()).toString()
-//
-//        val user = User(
-//            File(names[position].toString()).readText().substringAfter('\n'),
-//            File(names[position].toString()).readText().substringBefore('\n')
-//        )
-//
-//        chatUser = user
-//    }
-//
-//    override fun getLayout(): Int {
-//        return R.layout.item_chat_in_row
-//    }
-//}
 
 //class ChatOutItem(private val message: Message) : Item<ViewHolder>() {
 //    var chatUser: User? = null

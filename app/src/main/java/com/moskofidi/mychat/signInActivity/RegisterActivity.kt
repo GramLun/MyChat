@@ -15,7 +15,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import com.firebase.ui.auth.ui.AcquireEmailHelper.RC_SIGN_IN
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -36,9 +35,10 @@ import com.moskofidi.mychat.R
 import com.moskofidi.mychat.chatActivity.LatestMessagesActivity
 import com.moskofidi.mychat.dataClass.User
 import kotlinx.android.synthetic.main.activity_register.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import java.io.File
-import java.io.FileOutputStream
 
+@InternalCoroutinesApi
 @RequiresApi(Build.VERSION_CODES.M)
 class RegisterActivity : AppCompatActivity() {
 

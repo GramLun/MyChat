@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DiffUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -23,10 +24,13 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_new_message.*
 import kotlinx.android.synthetic.main.item_chat_in_row.view.*
 import kotlinx.android.synthetic.main.item_user_row.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class NewMessageActivity : AppCompatActivity() {
 
     private val connectionListener = ConnectionListener(this)
+    private val adapter = GroupAdapter<ViewHolder>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,12 +68,12 @@ class NewMessageActivity : AppCompatActivity() {
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 new_message_progress_bar.visibility = View.GONE
-                val adapter = GroupAdapter<ViewHolder>()
 
                 snapshot.children.forEach {
                     val user = it.getValue(User::class.java)
-                    if (user!!.id != FirebaseAuth.getInstance().currentUser!!.uid)
+                    if (user!!.id != FirebaseAuth.getInstance().currentUser!!.uid) {
                         adapter.add(UserItem(user))
+                    }
                 }
                 adapter.setOnItemClickListener { item, _ ->
                     val userItem = item as UserItem

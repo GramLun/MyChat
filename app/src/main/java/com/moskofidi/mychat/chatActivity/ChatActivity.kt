@@ -22,10 +22,11 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.item_incoming.view.*
 import kotlinx.android.synthetic.main.item_incoming.view.text_message_in
 import kotlinx.android.synthetic.main.item_outcoming.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+@InternalCoroutinesApi
 class ChatActivity : AppCompatActivity() {
     private val adapter = GroupAdapter<ViewHolder>()
     private val connectionListener = ConnectionListener(this)
