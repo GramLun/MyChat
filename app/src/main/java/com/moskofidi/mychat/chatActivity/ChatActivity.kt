@@ -22,14 +22,18 @@ import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.item_incoming.view.*
 import kotlinx.android.synthetic.main.item_incoming.view.text_message_in
 import kotlinx.android.synthetic.main.item_outcoming.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 
+@InternalCoroutinesApi
 class ChatActivity : AppCompatActivity() {
     private val adapter = GroupAdapter<ViewHolder>()
     private val connectionListener = ConnectionListener(this)
     private var user: User? = null
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -176,7 +180,7 @@ class ChatActivity : AppCompatActivity() {
                     if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
                         adapter.add(MessageOutItem(message))
                     else {
-                        adapter.add(MessageInItem(message))
+                        adapter.add(MessageInItem(message, externalCacheDir!!))
                     }
                 }
                 list_of_messages.scrollToPosition(adapter.itemCount - 1)
@@ -201,7 +205,7 @@ class ChatActivity : AppCompatActivity() {
     }
 }
 
-class MessageInItem(private val message: Message) : Item<ViewHolder>() {
+class MessageInItem(private val message: Message, private val path: File) : Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.itemView.text_message_in.text = message.text
 
@@ -214,6 +218,12 @@ class MessageInItem(private val message: Message) : Item<ViewHolder>() {
 
     override fun getLayout(): Int {
         return R.layout.item_incoming
+    }
+
+    private fun setCache() {
+        val msgPath = File(path, "/messages/${message.senderId}")
+        msgPath.mkdirs()
+        val msgFile = File(msgPath.toString(), UUID.randomUUID().toString() + ".txt")
     }
 }
 

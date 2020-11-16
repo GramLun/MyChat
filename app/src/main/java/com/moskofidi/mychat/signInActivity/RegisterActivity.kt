@@ -35,10 +35,13 @@ import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.chatActivity.LatestMessagesActivity
 import com.moskofidi.mychat.dataClass.User
+import com.moskofidi.mychat.room.UserDatabase
 import kotlinx.android.synthetic.main.activity_register.*
+import kotlinx.coroutines.InternalCoroutinesApi
 import java.io.File
 import java.io.FileOutputStream
 
+@InternalCoroutinesApi
 @RequiresApi(Build.VERSION_CODES.M)
 class RegisterActivity : AppCompatActivity() {
 
@@ -50,6 +53,7 @@ class RegisterActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
         if (FirebaseAuth.getInstance().currentUser != null) {
             startActivity(Intent(this, LatestMessagesActivity::class.java))
             this.finish()

@@ -11,7 +11,9 @@ import com.google.firebase.ktx.Firebase
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.chatActivity.LatestMessagesActivity
 import kotlinx.android.synthetic.main.activity_sign_in.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class SignInActivity : AppCompatActivity() {
 
     val auth: FirebaseAuth = Firebase.auth

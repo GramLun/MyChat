@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DiffUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -16,17 +17,26 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.dataClass.User
+import com.moskofidi.mychat.diffUtil.mDiffUtil
 import com.moskofidi.mychat.receiver.ConnectionListener
+import com.moskofidi.mychat.room.App
+import com.moskofidi.mychat.room.UserDatabase
+import com.moskofidi.mychat.room.UserEntity
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_new_message.*
 import kotlinx.android.synthetic.main.item_chat_in_row.view.*
 import kotlinx.android.synthetic.main.item_user_row.view.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 class NewMessageActivity : AppCompatActivity() {
 
     private val connectionListener = ConnectionListener(this)
+    private val adapter = GroupAdapter<ViewHolder>()
+    private val mDb = App().instance()!!.database()
+    private var newList = mutableListOf<UserEntity>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,16 +70,25 @@ class NewMessageActivity : AppCompatActivity() {
     }
 
     private fun fetchUsers() {
+//        val mDb = App().instance
+
+        getCache()
+
         val ref = FirebaseDatabase.getInstance().getReference("/users")
         ref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 new_message_progress_bar.visibility = View.GONE
-                val adapter = GroupAdapter<ViewHolder>()
 
                 snapshot.children.forEach {
                     val user = it.getValue(User::class.java)
-                    if (user!!.id != FirebaseAuth.getInstance().currentUser!!.uid)
+                    val userEntity = it.getValue(UserEntity::class.java)
+                    if (user!!.id != FirebaseAuth.getInstance().currentUser!!.uid) {
+                        if (userEntity != null) {
+                            newList.add(userEntity)
+                        }
                         adapter.add(UserItem(user))
+                        mDb!!.userDao()!!.insert(userEntity)
+                    }
                 }
                 adapter.setOnItemClickListener { item, _ ->
                     val userItem = item as UserItem
@@ -94,6 +113,15 @@ class NewMessageActivity : AppCompatActivity() {
                 ).show()
             }
         })
+    }
+
+    private fun getCache() {
+        val oldList = mDb!!.userDao()!!.readAll
+
+        val newMsgDiffUtil = mDiffUtil(oldList as List<UserEntity>, newList)
+        val newMsgDiffResult = DiffUtil.calculateDiff(newMsgDiffUtil)
+
+        newMsgDiffResult.dispatchUpdatesTo(adapter)
     }
 
     companion object {
