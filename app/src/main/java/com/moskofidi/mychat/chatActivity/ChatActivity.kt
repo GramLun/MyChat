@@ -21,7 +21,8 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.item_incoming.view.*
 import kotlinx.android.synthetic.main.item_incoming.view.text_message_in
-import kotlinx.android.synthetic.main.item_outcoming.view.*
+import kotlinx.android.synthetic.main.item_outcoming_read.view.*
+import kotlinx.android.synthetic.main.item_outcoming_unread.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import java.text.SimpleDateFormat
 import java.util.*
@@ -118,16 +119,16 @@ class ChatActivity : AppCompatActivity() {
                 val message = Message(
                     ref.key!!,
                     me.uid,
-                    message_input.text.toString().trim(),
                     user.id,
+                    message_input.text.toString().trim(),
                     false,
                     System.currentTimeMillis()
                 )
                 val toMessage = Message(
                     toRef.key!!,
                     me.uid,
-                    message_input.text.toString().trim(),
                     user.id,
+                    message_input.text.toString().trim(),
                     false,
                     System.currentTimeMillis()
                 )
@@ -149,8 +150,8 @@ class ChatActivity : AppCompatActivity() {
                 val message = Message(
                     ref.key!!,
                     me.uid,
-                    message_input.text.toString().trim(),
                     user.id,
+                    message_input.text.toString().trim(),
                     false,
                     System.currentTimeMillis()
                 )
@@ -169,13 +170,12 @@ class ChatActivity : AppCompatActivity() {
 
         val ref = FirebaseDatabase.getInstance().getReference("/messages/${me!!.uid}/${user.id}")
         ref.addChildEventListener(object : ChildEventListener {
-
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 chat_empty.visibility = View.GONE
                 val message = snapshot.getValue(Message::class.java)
                 if (message != null) {
                     if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
-                        adapter.add(MessageOutItem(message))
+                        adapter.add(MessageOutUnreadItem(message))
                     else {
                         adapter.add(MessageInItem(message))
                     }
@@ -184,7 +184,16 @@ class ChatActivity : AppCompatActivity() {
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
+                chat_empty.visibility = View.GONE
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
+                        adapter.add(MessageOutUnreadItem(message))
+                    else {
+                        adapter.add(MessageInItem(message))
+                    }
+                }
+                list_of_messages.scrollToPosition(adapter.itemCount - 1)
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
@@ -218,18 +227,34 @@ class MessageInItem(private val message: Message) : Item<ViewHolder>() {
     }
 }
 
-class MessageOutItem(private val message: Message) : Item<ViewHolder>() {
+class MessageOutUnreadItem(private val message: Message) : Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.text_message_out.text = message.text
+        viewHolder.itemView.text_message_out_unread.text = message.text
 
         val pattern = "HH:mm"
         val dateTime = SimpleDateFormat(pattern, Locale.getDefault())
         val time = dateTime.format(message.time)
 
-        viewHolder.itemView.time_message_out.text = time.toString()
+        viewHolder.itemView.time_message_out_unread.text = time.toString()
     }
 
     override fun getLayout(): Int {
-        return R.layout.item_outcoming
+        return R.layout.item_outcoming_unread
+    }
+}
+
+class MessageOutReadItem(private val message: Message) : Item<ViewHolder>() {
+    override fun bind(viewHolder: ViewHolder, position: Int) {
+        viewHolder.itemView.text_message_out_read.text = message.text
+
+        val pattern = "HH:mm"
+        val dateTime = SimpleDateFormat(pattern, Locale.getDefault())
+        val time = dateTime.format(message.time)
+
+        viewHolder.itemView.time_message_out_read.text = time.toString()
+    }
+
+    override fun getLayout(): Int {
+        return R.layout.item_outcoming_read
     }
 }

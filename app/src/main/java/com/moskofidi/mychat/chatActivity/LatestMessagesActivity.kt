@@ -1,16 +1,16 @@
 package com.moskofidi.mychat.chatActivity
 
+import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -27,7 +27,6 @@ import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.item_chat_in_row.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import java.io.File
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
@@ -106,21 +105,55 @@ class LatestMessagesActivity : AppCompatActivity() {
                 this.finish()
             }
             R.id.btnDeleteAccount -> {
+                val dialogClickListener =
+                    DialogInterface.OnClickListener { dialog, btn ->
+                        when (btn) {
+                            DialogInterface.BUTTON_POSITIVE -> {
+                                val user = FirebaseAuth.getInstance().currentUser
+                                user?.delete()
+                                if (FirebaseAuth.getInstance().currentUser == null) {
+                                    FirebaseDatabase.getInstance()
+                                        .getReference("/users/${user!!.uid}")
+                                        .removeValue()
+                                    FirebaseDatabase.getInstance()
+                                        .getReference("/names/${user.uid}")
+                                        .removeValue()
+                                    FirebaseStorage.getInstance()
+                                        .getReference("profile_pics/${user.uid}")
+                                        .delete()
+                                }
+                                FirebaseAuth.getInstance().signOut()
+
+                                dialog.dismiss()
+
+                                startActivity(Intent(this, RegisterActivity::class.java))
+                                this.finish()
+                            }
+                            DialogInterface.BUTTON_NEGATIVE -> {
+                                dialog.dismiss()
+                            }
+                        }
+                    }
+
+                val builder: AlertDialog.Builder = AlertDialog.Builder(applicationContext)
+                builder.setTitle("Удаление пользователя").setMessage("Вы уверены?").setPositiveButton("Да", dialogClickListener)
+                    .setNegativeButton("Нет", dialogClickListener).show()
+
 //                deleteCache()
-                val user = FirebaseAuth.getInstance().currentUser
-                user?.delete()
-                FirebaseDatabase.getInstance()
-                    .getReference("/users/${user!!.uid}")
-                    .removeValue()
-                FirebaseDatabase.getInstance()
-                    .getReference("/names/${user.uid}")
-                    .removeValue()
-                FirebaseStorage.getInstance()
-                    .getReference("profile_pics/${user.uid}")
-                    .delete()
-                FirebaseAuth.getInstance().signOut()
-                startActivity(Intent(this, RegisterActivity::class.java))
-                this.finish()
+//                val user = FirebaseAuth.getInstance().currentUser
+//                user?.delete()
+//                FirebaseDatabase.getInstance()
+//                    .getReference("/users/${user!!.uid}")
+//                    .removeValue()
+//                FirebaseDatabase.getInstance()
+//                    .getReference("/names/${user.uid}")
+//                    .removeValue()
+//                FirebaseStorage.getInstance()
+//                    .getReference("profile_pics/${user.uid}")
+//                    .delete()
+//                FirebaseAuth.getInstance().signOut()
+//                startActivity(Intent(this, RegisterActivity::class.java))
+//                this.finish()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -246,29 +279,29 @@ class ChatInItem(
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (message != null) {
                     if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid) {
-                            chatUser =
-                                snapshot.child(message.receiverId).getValue(User::class.java)
-                            viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+                        chatUser =
+                            snapshot.child(message.receiverId).getValue(User::class.java)
+                        viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
 
-                            val storageRef = FirebaseStorage.getInstance()
-                                .getReference("profile_pics/${message.receiverId}")
-                            storageRef.getBytes(4000 * 4000)
-                                .addOnSuccessListener {
-                                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                                    viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
-                                }
+                        val storageRef = FirebaseStorage.getInstance()
+                            .getReference("profile_pics/${message.receiverId}")
+                        storageRef.getBytes(4000 * 4000)
+                            .addOnSuccessListener {
+                                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                                viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
+                            }
                     } else {
-                            chatUser =
-                                snapshot.child(message.senderId).getValue(User::class.java)
-                            viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+                        chatUser =
+                            snapshot.child(message.senderId).getValue(User::class.java)
+                        viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
 
-                            val storageRef = FirebaseStorage.getInstance()
-                                .getReference("profile_pics/${message.senderId}")
-                            storageRef.getBytes(4000 * 4000)
-                                .addOnSuccessListener {
-                                    val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
-                                    viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
-                                }
+                        val storageRef = FirebaseStorage.getInstance()
+                            .getReference("profile_pics/${message.senderId}")
+                        storageRef.getBytes(4000 * 4000)
+                            .addOnSuccessListener {
+                                val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
+                                viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
+                            }
                     }
 
                     if (viewHolder.itemView.latest_message_row_in.text != message.text) {

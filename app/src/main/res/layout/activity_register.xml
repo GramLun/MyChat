@@ -12,7 +12,7 @@
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="180dp"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/baseline_portrait_black_48"
         android:contentDescription="@string/profile_pic"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"

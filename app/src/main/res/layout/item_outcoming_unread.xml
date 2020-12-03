@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="2dp">
+    android:background="@color/colorDarkFont"
+    android:paddingTop="3dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
@@ -15,7 +16,7 @@
         tools:ignore="UselessParent">
 
         <TextView
-            android:id="@+id/text_message_out"
+            android:id="@+id/text_message_out_unread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/helvetica"
@@ -30,11 +31,11 @@
             android:textColor="@color/colorMainFont"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/time_message_out"
+            app:layout_constraintEnd_toStartOf="@+id/time_message_out_unread"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/time_message_out"
+            android:id="@+id/time_message_out_unread"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
