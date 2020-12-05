@@ -2,11 +2,13 @@ package com.moskofidi.mychat.room
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import java.util.concurrent.Flow
+import com.moskofidi.mychat.room.UserEntity as UserEntity
 
 @Dao
 interface UserDao {
-    @get:Query("SELECT * FROM users")
-    val readAll: List<UserEntity?>
+    @Query("SELECT * FROM users")
+    fun getAll() : Flow<List<UserEntity?>>
 
     @Query("SELECT * FROM users WHERE :id = :id")
     fun getById(id: Long): UserEntity?

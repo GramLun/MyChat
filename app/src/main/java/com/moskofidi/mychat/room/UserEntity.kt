@@ -5,7 +5,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "users")
+@Entity(tableName = "users_table")
 class UserEntity(id: String, name: String, email: String, profilePic: Bitmap) {
     @PrimaryKey
     var id: String? = null
