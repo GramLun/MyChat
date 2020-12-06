@@ -1,4 +1,4 @@
-package com.moskofidi.mychat.chatActivity
+package com.moskofidi.mychat.chat
 
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DiffUtil
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -17,7 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.dataClass.User
-import com.moskofidi.mychat.receiver.ConnectionListener
+import com.moskofidi.mychat.listener.ConnectionListener
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder

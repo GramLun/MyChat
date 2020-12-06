@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/mainBackground"
-    tools:context="com.moskofidi.mychat.chatActivity.ChatActivity">
+    tools:context="com.moskofidi.mychat.chat.ChatActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_of_messages"
@@ -23,7 +23,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:background="@drawable/rounded_corner"
-        android:text="@string/empty_list_view"
+        android:text="@string/empty_list"
         android:textColor="@color/colorMainFont"
         android:textSize="14sp"
         android:visibility="visible" />
@@ -72,7 +72,7 @@
             android:background="@android:color/transparent"
             android:fadeScrollbars="false"
             android:fontFamily="@font/helvetica"
-            android:hint="@string/message"
+            android:hint="@string/message_input_line"
             android:inputType="textMultiLine"
             android:maxLines="6"
             android:minHeight="50dp"

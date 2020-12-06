@@ -7,10 +7,6 @@
         <item name="itemBackground">@color/colorItem</item>
         <item name="android:itemBackground">@color/colorItem</item>
 
-        <item name="actionMenuTextColor">@color/colorMainFont</item>
-        <item name="android:actionMenuTextColor">@color/colorMainFont</item>
-        <item name="android:textColor">@color/colorMainFont</item>
-
         <!-- Activity Transitions -->
         <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
     </style>
@@ -27,8 +23,9 @@
     </style>
 
     <style name="AppTheme.Chat">
-        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowIsTranslucent">true</item>x
         <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:textColor">@color/colorMainFont</item>
     </style>
 
     <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">

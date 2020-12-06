@@ -1,4 +1,4 @@
-package com.moskofidi.mychat.signInActivity
+package com.moskofidi.mychat.signIn
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -6,12 +6,11 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.View
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -34,11 +33,11 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
-import com.moskofidi.mychat.chatActivity.LatestMessagesActivity
+import com.moskofidi.mychat.chat.LatestMessagesActivity
 import com.moskofidi.mychat.dataClass.User
 import kotlinx.android.synthetic.main.activity_register.*
+import kotlinx.android.synthetic.main.permission_dialog_custom.*
 import kotlinx.coroutines.InternalCoroutinesApi
-import java.io.File
 
 @InternalCoroutinesApi
 @RequiresApi(Build.VERSION_CODES.M)
@@ -70,29 +69,28 @@ class RegisterActivity : AppCompatActivity() {
             .build()
         val mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        fetchNames()
+
         btnGoogleSignIn.setOnClickListener {
             signIn(mGoogleSignInClient)
         }
 
         btnRegister.setOnClickListener {
-            val profilePic = findViewById<View>(R.id.profilePic_reg)
-            profilePic.setBackgroundColor(ContextCompat.getColor(this, R.color.mainBackground))
-//            fetchNames()
-
+//            val profilePic = findViewById<View>(R.id.profilePic_reg)
+//            profilePic.setBackgroundColor(ContextCompat.getColor(this, R.color.mainBackground))
             val email = email_input_reg.text.toString()
             val password = password_input_reg.text.toString()
+            val name = name_input_reg.text.toString()
 
-            if (nameList.contains(name_input_reg.text.toString())) {
-                btnRegister.isClickable = true
-                Toast.makeText(this, "Имя пользователя занято", Toast.LENGTH_SHORT).show()
+            if (nameList.contains(name)) {
+                Toast.makeText(this, getString(R.string.name_is_already_taken), Toast.LENGTH_SHORT).show()
             } else {
                 if (email.isEmpty() || password.isEmpty()) {
-                    btnRegister.isClickable = true
-                    Toast.makeText(this, "Введите email/пароль", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.enter_email), Toast.LENGTH_SHORT).show()
                 } else if (profilePic_reg.drawable == null) {
-                    btnRegister.isClickable = true
-                    Toast.makeText(this, "Выберите фото профиля", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.pick_profile_photo), Toast.LENGTH_SHORT).show()
                 } else {
+                    btnRegister.isClickable = false
                     emailRegister(email, password)
                 }
             }
@@ -103,7 +101,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         profilePic_reg.setOnClickListener {
-            checkPermissions()
+            checkStoragePermissions()
         }
     }
 
@@ -118,15 +116,9 @@ class RegisterActivity : AppCompatActivity() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                Toast.makeText(this, "Success google sign in:" + account.id, Toast.LENGTH_SHORT)
-                    .show()
                 firebaseAuthWithGoogle(account.idToken!!)
             } catch (e: ApiException) {
-                Toast.makeText(
-                    this,
-                    "Google sign in failed: code " + e.statusCode,
-                    Toast.LENGTH_SHORT
-                ).show()
+                Log.e("Google register", e.statusCode.toString())
             }
         } else if (requestCode == SELECT_IMAGE) {
             if (resultCode == Activity.RESULT_OK && data != null) {
@@ -141,14 +133,12 @@ class RegisterActivity : AppCompatActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Create user(google): success", Toast.LENGTH_SHORT).show()
-
                     addUser(auth.currentUser!!)
-
+                    Toast.makeText(this, getString(R.string.google_sign_in_success), Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, LatestMessagesActivity::class.java))
                     this.finish()
                 } else {
-                    Toast.makeText(this, "Create user(google): failure", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.google_sign_in_error), Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -157,7 +147,7 @@ class RegisterActivity : AppCompatActivity() {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(this, "Create user(email): success", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, getString(R.string.register_success), Toast.LENGTH_SHORT)
                         .show()
 
                     val user = auth.currentUser
@@ -165,14 +155,14 @@ class RegisterActivity : AppCompatActivity() {
                         .setDisplayName(name_input_reg.text.toString()).build()
                     user?.updateProfile(update)?.addOnCompleteListener {
                         addUser(auth.currentUser!!)
-                        addUserToCache(auth.currentUser!!)
                     }
                     uploadImg(user!!)
 
                     startActivity(Intent(this, LatestMessagesActivity::class.java))
                     this.finish()
                 } else {
-                    Toast.makeText(this, "Create user(email): failure", Toast.LENGTH_SHORT)
+                    btnRegister.isClickable = true
+                    Toast.makeText(this, getString(R.string.register_error), Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -201,25 +191,12 @@ class RegisterActivity : AppCompatActivity() {
         val storageRef = FirebaseStorage.getInstance().getReference("profile_pics/${user.uid}")
         storageRef.putFile(uri)
             .addOnSuccessListener {
-                Toast.makeText(this, "Profile pic has been loaded", Toast.LENGTH_SHORT)
+                Toast.makeText(this, getString(R.string.profile_pic_load_success), Toast.LENGTH_SHORT)
                     .show()
             }.addOnFailureListener {
-                Toast.makeText(this, "FAILURE", Toast.LENGTH_SHORT)
+                Toast.makeText(this, getString(R.string.profile_pic_load_error), Toast.LENGTH_SHORT)
                     .show()
             }
-    }
-
-    private fun addUserToCache(user: FirebaseUser) {
-        // Without profile pic
-        val userPath = File(externalCacheDir, "/me")
-        userPath.mkdirs()
-        val userFile = File(userPath.toString(), user.displayName.toString() + ".txt")
-
-        try {
-            userFile.writeText(user.displayName.toString())
-        } catch (e: Exception) {
-            Toast.makeText(this, "e: Exception", Toast.LENGTH_LONG).show()
-        }
     }
 
     private fun fetchNames() {
@@ -228,18 +205,20 @@ class RegisterActivity : AppCompatActivity() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 snapshot.children.forEach {
                     val name = it.getValue(String::class.java)
-                    Toast.makeText(this@RegisterActivity, name, Toast.LENGTH_SHORT).show()
-                    nameList.plusAssign(listOf(name!!.toString()))
+//                    Toast.makeText(this@RegisterActivity, name, Toast.LENGTH_SHORT).show()
+//                    nameList.plusAssign(listOf(name!!.toString()))
+                    if (name != null) {
+                        nameList.add(name)
+                    }
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+            override fun onCancelled(error: DatabaseError) =
+                Toast.makeText(this@RegisterActivity, getString(R.string.fetch_names_error), Toast.LENGTH_SHORT).show()
         })
     }
 
-    private fun checkPermissions() {
+    private fun checkStoragePermissions() {
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
@@ -249,24 +228,34 @@ class RegisterActivity : AppCompatActivity() {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            pickImg()
+            ActivityCompat.requestPermissions(
+                this@RegisterActivity,
+                arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ),
+                REQUEST_PERMISSIONS_CODE
+            )
         } else {
+            val customView = layoutInflater.inflate(R.layout.permission_dialog_custom, null)
+
             if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                AlertDialog.Builder(this)
-                    .setTitle("Нужно разрешение")
+                val dialog = AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.storage_permission_title))
                     .setCancelable(true)
-                    .setMessage("Это разрешение нужно для загрузки изображений")
-                    .setPositiveButton("Да") { _, _ ->
+                    .setView(customView)
+                    .setPositiveButton(getString(R.string.storage_permission_on)) { _, _ ->
                         ActivityCompat.requestPermissions(
                             this@RegisterActivity,
                             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                             REQUEST_PERMISSIONS_CODE
                         )
                     }
-                    .setNegativeButton("Нет") { dialog, _ ->
+                    .setNegativeButton(getString(R.string.storage_permission_off)) { dialog, _ ->
                         dialog.dismiss()
                     }
-                    .create().show()
+                    .create()
+                dialog.show()
             } else {
                 ActivityCompat.requestPermissions(
                     this@RegisterActivity,
@@ -290,7 +279,7 @@ class RegisterActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pickImg()
             } else {
-                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, getString(R.string.no_permission), Toast.LENGTH_LONG).show()
             }
             return
         }

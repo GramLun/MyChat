@@ -1,4 +1,4 @@
-package com.moskofidi.mychat.chatActivity
+package com.moskofidi.mychat.chat
 
 import android.content.Intent
 import android.os.Build
@@ -13,7 +13,7 @@ import com.google.firebase.database.*
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.dataClass.Message
 import com.moskofidi.mychat.dataClass.User
-import com.moskofidi.mychat.receiver.ConnectionListener
+import com.moskofidi.mychat.listener.ConnectionListener
 import com.r0adkll.slidr.Slidr
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
@@ -33,7 +33,7 @@ class ChatActivity : AppCompatActivity() {
     private val connectionListener = ConnectionListener(this)
     private var user: User? = null
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
@@ -47,7 +47,7 @@ class ChatActivity : AppCompatActivity() {
                         supportActionBar?.title = user?.name
                     }
                     false -> {
-                        supportActionBar?.title = "Ожидание сети..."
+                        supportActionBar?.title = getString(R.string.waiting_for_network)
                     }
                 }
             }
@@ -175,9 +175,9 @@ class ChatActivity : AppCompatActivity() {
                 val message = snapshot.getValue(Message::class.java)
                 if (message != null) {
                     if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
-                        adapter.add(MessageOutUnreadItem(message))
+                        adapter.add(MessageItem(message, Type.MSG_OUT_UNREAD))
                     else {
-                        adapter.add(MessageInItem(message))
+                        adapter.add(MessageItem(message, Type.MSG_IN))
                     }
                 }
                 list_of_messages.scrollToPosition(adapter.itemCount - 1)
@@ -188,21 +188,17 @@ class ChatActivity : AppCompatActivity() {
                 val message = snapshot.getValue(Message::class.java)
                 if (message != null) {
                     if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
-                        adapter.add(MessageOutUnreadItem(message))
+                        adapter.add(MessageItem(message, Type.MSG_OUT_UNREAD))
                     else {
-                        adapter.add(MessageInItem(message))
+                        adapter.add(MessageItem(message, Type.MSG_IN))
                     }
                 }
                 list_of_messages.scrollToPosition(adapter.itemCount - 1)
             }
 
-            override fun onChildRemoved(snapshot: DataSnapshot) {
-                TODO("Not yet implemented")
-            }
+            override fun onChildRemoved(snapshot: DataSnapshot) { }
 
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
-            }
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 println("The read failed: " + databaseError.code)
@@ -211,50 +207,44 @@ class ChatActivity : AppCompatActivity() {
     }
 }
 
-class MessageInItem(private val message: Message) : Item<ViewHolder>() {
+enum class Type {
+    MSG_IN, MSG_OUT_READ, MSG_OUT_UNREAD
+}
+
+class MessageItem(private val message: Message, private val type: Type) : Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.text_message_in.text = message.text
 
         val pattern = "HH:mm"
         val dateTime = SimpleDateFormat(pattern, Locale.US)
         val time = dateTime.format(message.time)
 
-        viewHolder.itemView.time_message_in.text = time.toString()
+        when (type) {
+            Type.MSG_IN -> {
+                viewHolder.itemView.text_message_in.text = message.text
+                viewHolder.itemView.time_message_in.text = time.toString()
+            }
+            Type.MSG_OUT_READ -> {
+                viewHolder.itemView.text_message_out_read.text = message.text
+                viewHolder.itemView.time_message_out_read.text = time.toString()
+            }
+            Type.MSG_OUT_UNREAD -> {
+                viewHolder.itemView.text_message_out_unread.text = message.text
+                viewHolder.itemView.time_message_out_unread.text = time.toString()
+            }
+        }
     }
 
     override fun getLayout(): Int {
-        return R.layout.item_incoming
-    }
-}
-
-class MessageOutUnreadItem(private val message: Message) : Item<ViewHolder>() {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.text_message_out_unread.text = message.text
-
-        val pattern = "HH:mm"
-        val dateTime = SimpleDateFormat(pattern, Locale.getDefault())
-        val time = dateTime.format(message.time)
-
-        viewHolder.itemView.time_message_out_unread.text = time.toString()
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.item_outcoming_unread
-    }
-}
-
-class MessageOutReadItem(private val message: Message) : Item<ViewHolder>() {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.text_message_out_read.text = message.text
-
-        val pattern = "HH:mm"
-        val dateTime = SimpleDateFormat(pattern, Locale.getDefault())
-        val time = dateTime.format(message.time)
-
-        viewHolder.itemView.time_message_out_read.text = time.toString()
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.item_outcoming_read
+        return when (type) {
+            Type.MSG_IN -> {
+                R.layout.item_incoming
+            }
+            Type.MSG_OUT_READ -> {
+                R.layout.item_outcoming_read
+            }
+            Type.MSG_OUT_UNREAD -> {
+                R.layout.item_outcoming_unread
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.moskofidi.mychat.receiver
+package com.moskofidi.mychat.listener
 
 import android.content.BroadcastReceiver
 import android.content.Context

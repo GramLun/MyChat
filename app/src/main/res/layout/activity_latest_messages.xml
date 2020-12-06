@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corner"
-        android:text="@string/empty_list_view"
+        android:text="@string/empty_list"
         android:textColor="@color/colorMainFont"
         android:textSize="14sp"
         android:visibility="visible"

@@ -8,6 +8,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -17,13 +18,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".MessageNotificationService"
-            android:enabled="true"
-            android:exported="false" />
 
         <activity
-            android:name=".signInActivity.RegisterActivity"
+            android:name=".signIn.RegisterActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.Launcher">
             <intent-filter>
@@ -32,25 +29,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".signInActivity.SignInActivity">
+        <activity android:name=".signIn.SignInActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".signInActivity.RegisterActivity" />
+                android:value=".signIn.RegisterActivity" />
         </activity>
         <activity
-            android:name=".chatActivity.LatestMessagesActivity"
-            android:launchMode="singleTop" />
+            android:name=".chat.LatestMessagesActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.Chat" />
         <activity
-            android:name=".chatActivity.ChatActivity"
+            android:name=".chat.ChatActivity"
             android:theme="@style/AppTheme.Chat">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".chatActivity.LatestMessagesActivity" />
+                android:value=".chat.LatestMessagesActivity" />
         </activity>
-        <activity android:name=".chatActivity.NewMessageActivity">
+        <activity android:name=".chat.NewMessageActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".chatActivity.LatestMessagesActivity" />
+                android:value=".chat.LatestMessagesActivity" />
         </activity>
     </application>
 

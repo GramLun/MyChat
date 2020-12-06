@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/mainBackground"
-    tools:context="com.moskofidi.mychat.signInActivity.RegisterActivity">
+    tools:context="com.moskofidi.mychat.signIn.RegisterActivity">
 
 
     <EditText

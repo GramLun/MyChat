@@ -1,4 +1,4 @@
-package com.moskofidi.mychat.signInActivity
+package com.moskofidi.mychat.signIn
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.moskofidi.mychat.R
-import com.moskofidi.mychat.chatActivity.LatestMessagesActivity
+import com.moskofidi.mychat.chat.LatestMessagesActivity
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import kotlinx.coroutines.InternalCoroutinesApi
 

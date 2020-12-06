@@ -1,20 +1,36 @@
 <resources>
     <string name="app_name">MyChat</string>
     <string name="email">Email</string>
+    <string name="name">Имя</string>
     <string name="password">Пароль</string>
     <string name="sign_in">Войти</string>
+    <string name="sign_in_google">ВОЙТИ ЧЕРЕЗ GOOGLE</string>
     <string name="sign_out">Выйти</string>
     <string name="register">Зарегистироваться</string>
-    <string name="message">Введите текст</string>
     <string name="already_have_an_account">Уже есть аккаунт?</string>
+    <string name="name_is_already_taken">Имя пользователя занято</string>
+    <string name="pick_profile_photo">Выберите фото профиля</string>
+    <string name="enter_email">Введите email/пароль</string>
     <string name="delete_account">Удалить аккаунт</string>
-    <string name="name">Имя</string>
+    <string name="delete_chat">Удалить чат</string>
+    <string name="dialog_removed">Диалог был удален</string>
+    <string name="empty_list">Здесь пока ничего нет…</string>
+    <string name="message_input_line">Введите текст</string>
     <string name="new_message">Новое сообщение</string>
     <string name="you_row_out">Вы:</string>
-    <string name="delete_chat">Удалить чат</string>
     <string name="profile_pic">Profile Pic</string>
-    <string name="empty_list_view">Здесь пока ничего нет…</string>
-    <string name="sign_in_google">ВОЙТИ ЧЕРЕЗ GOOGLE</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="load_chats_error">Невозможно загрузить список диалогов</string>
+    <string name="google_sign_in_success">Вы вошли с помощью Google аккаунта</string>
+    <string name="google_sign_in_error">Не удалось войти через Google</string>
+    <string name="register_success">Вы успешно зарегистрировались</string>
+    <string name="register_error">Ошибка регистрации: что-то пошло не так</string>
+    <string name="profile_pic_load_success">Изображение загружено</string>
+    <string name="profile_pic_load_error">Изображение не загрузилось</string>
+    <string name="fetch_names_error">Не удалось получить список имен</string>
+    <string name="no_permission">Разрешение не предоставлено</string>
+    <string name="storage_permission_on">Включить</string>
+    <string name="storage_permission_off">Нет</string>
+    <string name="storage_permission_title">Разрешите доступ к вашим фото</string>
+    <string name="storage_permission_message">Разрешает доступ к фото из вашей галереи</string>
+    <string name="waiting_for_network">Ожидание сети...</string>
 </resources>
