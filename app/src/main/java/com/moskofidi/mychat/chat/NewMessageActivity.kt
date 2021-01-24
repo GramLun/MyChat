@@ -33,9 +33,9 @@ import java.util.Observer
 @InternalCoroutinesApi
 class NewMessageActivity : AppCompatActivity() {
 
-    private val usersViewModel: UsersViewModel by viewModels {
-        UsersViewModelFactory((application as UsersApplication).repository)
-    }
+//    private val usersViewModel: UsersViewModel by viewModels {
+//        UsersViewModelFactory((application as UsersApplication).repository)
+//    }
 
     private val connectionListener = ConnectionListener(this)
     private val adapter = GroupAdapter<ViewHolder>()
