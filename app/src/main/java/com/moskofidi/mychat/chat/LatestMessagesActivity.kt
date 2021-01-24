@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings.Global.getString
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -16,6 +15,7 @@ import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.dataClass.Message
+import com.moskofidi.mychat.dataClass.TypeChat
 import com.moskofidi.mychat.dataClass.User
 import com.moskofidi.mychat.listener.ConnectionListener
 import com.moskofidi.mychat.signIn.RegisterActivity
@@ -23,7 +23,8 @@ import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_latest_messages.*
-import kotlinx.android.synthetic.main.item_chat_in_row.view.*
+import kotlinx.android.synthetic.main.item_chat_in_read_row.view.*
+import kotlinx.android.synthetic.main.item_chat_in_unread_row.view.*
 import kotlinx.android.synthetic.main.item_chat_out_read_row.view.*
 import kotlinx.android.synthetic.main.item_chat_out_unread_row.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -126,7 +127,6 @@ class LatestMessagesActivity : AppCompatActivity() {
     private fun fetchChats() {
         val ref = FirebaseDatabase.getInstance().getReference("/latest_messages/${user!!.uid}")
         ref.addChildEventListener(object : ChildEventListener {
-
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val message = snapshot.getValue(Message::class.java) ?: return
                 latestMessagesMap[snapshot.key!!] = message
@@ -159,16 +159,24 @@ class LatestMessagesActivity : AppCompatActivity() {
         latest_empty.visibility = View.GONE
         adapter.clear()
         latestMessagesMap.values.forEach {
-               if (it.senderId != user?.uid)
-                    adapter.add(ChatItem(it, Type.MSG_IN))
-              else
-                    adapter.add(ChatItem(it, Type.MSG_OUT_UNREAD))
+            if (it.senderId != user?.uid) {
+                if (!it.read)
+                    adapter.add(ChatItem(it, TypeChat.MSG_IN_UNREAD))
+                else
+                    adapter.add(ChatItem(it, TypeChat.MSG_IN_READ))
+            }
+            else {
+                if (!it.read)
+                    adapter.add(ChatItem(it, TypeChat.MSG_OUT_UNREAD))
+                else
+                    adapter.add(ChatItem(it, TypeChat.MSG_OUT_READ))
+            }
         }
     }
 }
 
 class ChatItem(
-    private val message: Message? = null, private val type: Type
+    private val message: Message? = null, private val type: TypeChat
 ) : Item<ViewHolder>() {
     var chatUser: User? = null
 
@@ -184,13 +192,16 @@ class ChatItem(
                         chatUser =
                             snapshot.child(message.receiverId).getValue(User::class.java)
                         when (type) {
-                            Type.MSG_IN -> {
-                                viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+                            TypeChat.MSG_IN_READ -> {
+                                viewHolder.itemView.name_row_in_read.text = chatUser?.name.toString()
                             }
-                            Type.MSG_OUT_READ -> {
+                            TypeChat.MSG_IN_UNREAD -> {
+                                viewHolder.itemView.name_row_in_unread.text = chatUser?.name.toString()
+                            }
+                            TypeChat.MSG_OUT_READ -> {
                                 viewHolder.itemView.name_row_out_read.text = chatUser?.name.toString()
                             }
-                            Type.MSG_OUT_UNREAD -> {
+                            TypeChat.MSG_OUT_UNREAD -> {
                                 viewHolder.itemView.name_row_out_unread.text = chatUser?.name.toString()
                             }
                         }
@@ -201,13 +212,16 @@ class ChatItem(
                             .addOnSuccessListener {
                                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                                 when (type) {
-                                    Type.MSG_IN -> {
-                                        viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
+                                    TypeChat.MSG_IN_READ -> {
+                                        viewHolder.itemView.profilePic_chat_row_in_read.setImageBitmap(bitmap)
                                     }
-                                    Type.MSG_OUT_READ -> {
+                                    TypeChat.MSG_IN_UNREAD -> {
+                                        viewHolder.itemView.profilePic_chat_row_in_unread.setImageBitmap(bitmap)
+                                    }
+                                    TypeChat.MSG_OUT_READ -> {
                                         viewHolder.itemView.profilePic_chat_row_out_read.setImageBitmap(bitmap)
                                     }
-                                    Type.MSG_OUT_UNREAD -> {
+                                    TypeChat.MSG_OUT_UNREAD -> {
                                         viewHolder.itemView.profilePic_chat_row_out_unread.setImageBitmap(bitmap)
                                     }
                                 }
@@ -216,13 +230,16 @@ class ChatItem(
                         chatUser =
                             snapshot.child(message.senderId).getValue(User::class.java)
                         when (type) {
-                            Type.MSG_IN -> {
-                                viewHolder.itemView.name_row_in.text = chatUser?.name.toString()
+                            TypeChat.MSG_IN_READ -> {
+                                viewHolder.itemView.name_row_in_read.text = chatUser?.name.toString()
                             }
-                            Type.MSG_OUT_READ -> {
+                            TypeChat.MSG_IN_UNREAD -> {
+                                viewHolder.itemView.name_row_in_unread.text = chatUser?.name.toString()
+                            }
+                            TypeChat.MSG_OUT_READ -> {
                                 viewHolder.itemView.name_row_out_read.text = chatUser?.name.toString()
                             }
-                            Type.MSG_OUT_UNREAD -> {
+                            TypeChat.MSG_OUT_UNREAD -> {
                                 viewHolder.itemView.name_row_out_unread.text = chatUser?.name.toString()
                             }
                         }
@@ -233,13 +250,16 @@ class ChatItem(
                             .addOnSuccessListener {
                                 val bitmap = BitmapFactory.decodeByteArray(it, 0, it.size)
                                 when (type) {
-                                    Type.MSG_IN -> {
-                                        viewHolder.itemView.profilePic_chat_row_in.setImageBitmap(bitmap)
+                                    TypeChat.MSG_IN_READ -> {
+                                        viewHolder.itemView.profilePic_chat_row_in_read.setImageBitmap(bitmap)
                                     }
-                                    Type.MSG_OUT_READ -> {
+                                    TypeChat.MSG_IN_UNREAD -> {
+                                        viewHolder.itemView.profilePic_chat_row_in_unread.setImageBitmap(bitmap)
+                                    }
+                                    TypeChat.MSG_OUT_READ -> {
                                         viewHolder.itemView.profilePic_chat_row_out_read.setImageBitmap(bitmap)
                                     }
-                                    Type.MSG_OUT_UNREAD -> {
+                                    TypeChat.MSG_OUT_UNREAD -> {
                                         viewHolder.itemView.profilePic_chat_row_out_unread.setImageBitmap(bitmap)
                                     }
                                 }
@@ -248,15 +268,19 @@ class ChatItem(
                     val pattern = "HH:mm"
                     val dateTime = SimpleDateFormat(pattern, Locale.US)
                     when (type) {
-                        Type.MSG_IN -> {
-                            viewHolder.itemView.time_row_in.text = dateTime.format(message.time).toString()
-                            viewHolder.itemView.latest_message_row_in.text = message.text
+                        TypeChat.MSG_IN_READ -> {
+                            viewHolder.itemView.time_row_in_read.text = dateTime.format(message.time).toString()
+                            viewHolder.itemView.latest_message_row_in_read.text = message.text
                         }
-                        Type.MSG_OUT_READ -> {
+                        TypeChat.MSG_IN_UNREAD -> {
+                            viewHolder.itemView.time_row_in_unread.text = dateTime.format(message.time).toString()
+                            viewHolder.itemView.latest_message_row_in_unread.text = message.text
+                        }
+                        TypeChat.MSG_OUT_READ -> {
                             viewHolder.itemView.time_row_out_read.text = dateTime.format(message.time).toString()
                             viewHolder.itemView.latest_message_row_out_read.text = message.text
                         }
-                        Type.MSG_OUT_UNREAD -> {
+                        TypeChat.MSG_OUT_UNREAD -> {
                             viewHolder.itemView.time_row_out_unread.text = dateTime.format(message.time).toString()
                             viewHolder.itemView.latest_message_row_out_unread.text = message.text
                         }
@@ -270,13 +294,16 @@ class ChatItem(
 
     override fun getLayout(): Int {
         return when (type) {
-            Type.MSG_IN -> {
-                R.layout.item_chat_in_row
+            TypeChat.MSG_IN_READ -> {
+                R.layout.item_chat_in_read_row
             }
-            Type.MSG_OUT_READ -> {
+            TypeChat.MSG_IN_UNREAD -> {
+                R.layout.item_chat_in_unread_row
+            }
+            TypeChat.MSG_OUT_READ -> {
                 R.layout.item_chat_out_read_row
             }
-            Type.MSG_OUT_UNREAD -> {
+            TypeChat.MSG_OUT_UNREAD -> {
                 R.layout.item_chat_out_unread_row
             }
         }

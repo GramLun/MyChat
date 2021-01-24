@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -15,21 +16,30 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
+import com.moskofidi.mychat.adapters.UsersListAdapter
 import com.moskofidi.mychat.dataClass.User
 import com.moskofidi.mychat.listener.ConnectionListener
+import com.moskofidi.mychat.room.users.UsersApplication
+import com.moskofidi.mychat.room.users.UsersViewModel
+import com.moskofidi.mychat.room.users.UsersViewModelFactory
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_new_message.*
-import kotlinx.android.synthetic.main.item_chat_in_row.view.*
 import kotlinx.android.synthetic.main.item_user_row.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
+import java.util.Observer
 
 @InternalCoroutinesApi
 class NewMessageActivity : AppCompatActivity() {
 
+    private val usersViewModel: UsersViewModel by viewModels {
+        UsersViewModelFactory((application as UsersApplication).repository)
+    }
+
     private val connectionListener = ConnectionListener(this)
     private val adapter = GroupAdapter<ViewHolder>()
+//    private val adapter = UsersListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +109,14 @@ class NewMessageActivity : AppCompatActivity() {
         })
     }
 
+    private fun checkCache() {
+//        usersViewModel.allUsers.observe(this, Observer { users ->
+//            // Update the cached copy of the words in the adapter.
+//            users?.let { }
+//        })
+//        val usersViewModel.allUsers
+    }
+
     companion object {
         const val USER_KEY = "USER_KEY"
     }
@@ -106,7 +124,7 @@ class NewMessageActivity : AppCompatActivity() {
 
 class UserItem(val user: User) : Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.user_row.text = user.name
+        viewHolder.itemView.user_name_row.text = user.name
 
         val storageRef = FirebaseStorage.getInstance()
             .getReference("profile_pics/${user.id}")

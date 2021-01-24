@@ -95,7 +95,7 @@
         android:id="@+id/btnHaveAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="14dp"
         android:text="@string/already_have_an_account"
         android:textColor="@color/colorDarkFont"
         android:textSize="16sp"

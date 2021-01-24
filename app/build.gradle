@@ -45,6 +45,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation "androidx.activity:activity-ktx:$rootProject.activityVersion"
 //    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
 //    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     testImplementation 'junit:junit:4.13.1'
@@ -69,7 +70,7 @@ dependencies {
     //Adapter
     implementation 'com.xwray:groupie:2.1.0'
 
-//New for Room
+//For Room
     //Room
     implementation "androidx.room:room-ktx:$rootProject.roomVersion"
     kapt "androidx.room:room-compiler:$rootProject.roomVersion"

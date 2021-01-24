@@ -21,7 +21,7 @@
         app:riv_corner_radius="30dp" />
 
     <TextView
-        android:id="@+id/user_row"
+        android:id="@+id/user_name_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="79dp"

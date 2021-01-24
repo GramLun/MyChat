@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="75dp"
-    android:background="@color/mainBackground">
+    android:background="@color/colorDarkFont">
 
     <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/profilePic_chat_row_out_read"
+        android:id="@+id/profilePic_chat_row_in_unread"
         android:layout_width="55dp"
         android:layout_height="55dp"
         android:layout_marginStart="12dp"
@@ -21,58 +21,61 @@
         app:riv_corner_radius="30dp" />
 
     <TextView
-        android:id="@+id/name_row_out_read"
+        android:id="@+id/name_row_in_unread"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="79dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="56dp"
         android:gravity="start"
-        android:textColor="@color/white"
+        android:textColor="@color/mainBackground"
         android:textSize="17sp"
-        app:layout_constraintStart_toStartOf="@id/profilePic_chat_row_out_read"
+        app:layout_constraintStart_toStartOf="@id/profilePic_chat_row_in_unread"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/you_row_out_read"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="79dp"
-        android:text="@string/you_row_out"
-        android:textColor="@color/colorDarkFont"
-        app:layout_constraintBottom_toBottomOf="@+id/latest_message_row_out_read"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_row_out_read" />
-
-    <TextView
-        android:id="@+id/latest_message_row_out_read"
+        android:id="@+id/latest_message_row_in_unread"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="106dp"
+        android:layout_marginStart="79dp"
         android:layout_marginEnd="56dp"
         android:gravity="start"
         android:maxLines="1"
         android:text="Latest Message"
-        android:textColor="@color/colorDarkFont"
+        android:textColor="@color/mainBackground"
         android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@id/you_row_out_read"
-        app:layout_constraintTop_toBottomOf="@+id/name_row_out_read" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_row_in_unread" />
 
     <TextView
-        android:id="@+id/time_row_out_read"
+        android:id="@+id/time_row_in_unread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="12dp"
         android:gravity="end"
         android:text="11:34"
-        android:textColor="@color/colorDarkFont"
+        android:textColor="@color/mainBackground"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/counter_row_in_unread"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/rounded_corner_counter"
+        android:text="2"
+        android:textColor="@color/mainBackground"
+        android:textSize="15sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <View
-        android:id="@+id/separator_chat_out_read"
+        android:id="@+id/separator_chat_in_unread"
         android:layout_width="385dp"
         android:layout_height="0.8dp"
         android:background="@color/colorInMessage"

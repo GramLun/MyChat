@@ -32,5 +32,5 @@
     <string name="storage_permission_off">Нет</string>
     <string name="storage_permission_title">Разрешите доступ к вашим фото</string>
     <string name="storage_permission_message">Разрешает доступ к фото из вашей галереи</string>
-    <string name="waiting_for_network">Ожидание сети...</string>
+    <string name="waiting_for_network">Ожидание сети…</string>
 </resources>

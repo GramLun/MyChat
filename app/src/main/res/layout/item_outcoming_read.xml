@@ -30,7 +30,7 @@
             android:textColor="@color/colorMainFont"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/time_message_out_unread"
+            app:layout_constraintEnd_toStartOf="@+id/time_message_out_read"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

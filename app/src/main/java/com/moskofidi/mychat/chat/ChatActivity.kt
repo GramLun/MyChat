@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.moskofidi.mychat.R
 import com.moskofidi.mychat.dataClass.Message
+import com.moskofidi.mychat.dataClass.TypeMsg
 import com.moskofidi.mychat.dataClass.User
 import com.moskofidi.mychat.listener.ConnectionListener
 import com.r0adkll.slidr.Slidr
@@ -26,13 +27,13 @@ import kotlinx.android.synthetic.main.item_outcoming_unread.view.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 @InternalCoroutinesApi
 class ChatActivity : AppCompatActivity() {
     private val adapter = GroupAdapter<ViewHolder>()
     private val connectionListener = ConnectionListener(this)
     private var user: User? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,6 +110,7 @@ class ChatActivity : AppCompatActivity() {
 
         if (message_input.text.toString() != "") {
             if (user.id != FirebaseAuth.getInstance().currentUser?.uid) {
+                // send from me
                 val ref = FirebaseDatabase.getInstance()
                     .getReference("/messages/${me!!.uid}/${user.id}")
                     .push()
@@ -144,6 +146,7 @@ class ChatActivity : AppCompatActivity() {
                     .getReference("/latest_messages/${user.id}/${me.uid}")
                 latestToRef.setValue(toMessage)
             } else {
+                // send to me (dialog with myself)
                 val ref = FirebaseDatabase.getInstance()
                     .getReference("/messages/${me!!.uid}/${user.id}")
                     .push()
@@ -169,15 +172,25 @@ class ChatActivity : AppCompatActivity() {
         val me = FirebaseAuth.getInstance().currentUser
 
         val ref = FirebaseDatabase.getInstance().getReference("/messages/${me!!.uid}/${user.id}")
+        val uRef = FirebaseDatabase.getInstance().getReference("/messages/${user.id}/${me.uid}")
+        val latRef = FirebaseDatabase.getInstance().getReference("/latest_messages/${me.uid}")
+        val uLatRef = FirebaseDatabase.getInstance().getReference("/latest_messages/${user.id}")
         ref.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 chat_empty.visibility = View.GONE
                 val message = snapshot.getValue(Message::class.java)
                 if (message != null) {
-                    if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
-                        adapter.add(MessageItem(message, Type.MSG_OUT_UNREAD))
+                    setRead(message, snapshot)
+
+                    if (message.senderId == me.uid)
+                        if (!message.read) {
+                            adapter.add(MessageItem(message, TypeMsg.MSG_OUT_UNREAD))
+                        }
+                        else {
+                            adapter.add(MessageItem(message, TypeMsg.MSG_OUT_READ))
+                        }
                     else {
-                        adapter.add(MessageItem(message, Type.MSG_IN))
+                        adapter.add(MessageItem(message, TypeMsg.MSG_IN_READ))
                     }
                 }
                 list_of_messages.scrollToPosition(adapter.itemCount - 1)
@@ -187,11 +200,15 @@ class ChatActivity : AppCompatActivity() {
                 chat_empty.visibility = View.GONE
                 val message = snapshot.getValue(Message::class.java)
                 if (message != null) {
-                    if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid)
-                        adapter.add(MessageItem(message, Type.MSG_OUT_UNREAD))
-                    else {
-                        adapter.add(MessageItem(message, Type.MSG_IN))
-                    }
+                    setRead(message, snapshot)
+//                    if (message.senderId == me.uid)
+//                        if (!message.read)
+//                            adapter.add(MessageItem(message, TypeMsg.MSG_OUT_UNREAD))
+//                        else
+//                            adapter.add(MessageItem(message, TypeMsg.MSG_OUT_READ))
+//                    else {
+//                        adapter.add(MessageItem(message, TypeMsg.MSG_IN_READ))
+//                    }
                 }
                 list_of_messages.scrollToPosition(adapter.itemCount - 1)
             }
@@ -204,14 +221,91 @@ class ChatActivity : AppCompatActivity() {
                 println("The read failed: " + databaseError.code)
             }
         })
+        uRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    setRead(message, snapshot)
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    setRead(message, snapshot)
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) { }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) { }
+
+            override fun onCancelled(error: DatabaseError) { }
+        })
+
+        latRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    setRead(message, snapshot)
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    setRead(message, snapshot)
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
+        uLatRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    setRead(message, snapshot)
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                val message = snapshot.getValue(Message::class.java)
+                if (message != null) {
+                    setRead(message, snapshot)
+                }
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
+    }
+
+    private fun setRead(message: Message, snapshot: DataSnapshot) {
+        if (message.senderId == user!!.id) {
+            message.read = true
+            val hashMap = HashMap<String, Any>()
+            hashMap["read"] = true
+            snapshot.ref.updateChildren(hashMap)
+        }
     }
 }
 
-enum class Type {
-    MSG_IN, MSG_OUT_READ, MSG_OUT_UNREAD
-}
-
-class MessageItem(private val message: Message, private val type: Type) : Item<ViewHolder>() {
+class MessageItem(private val message: Message, private val type: TypeMsg) : Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
 
         val pattern = "HH:mm"
@@ -219,15 +313,15 @@ class MessageItem(private val message: Message, private val type: Type) : Item<V
         val time = dateTime.format(message.time)
 
         when (type) {
-            Type.MSG_IN -> {
+            TypeMsg.MSG_IN_READ -> {
                 viewHolder.itemView.text_message_in.text = message.text
                 viewHolder.itemView.time_message_in.text = time.toString()
             }
-            Type.MSG_OUT_READ -> {
+            TypeMsg.MSG_OUT_READ -> {
                 viewHolder.itemView.text_message_out_read.text = message.text
                 viewHolder.itemView.time_message_out_read.text = time.toString()
             }
-            Type.MSG_OUT_UNREAD -> {
+            TypeMsg.MSG_OUT_UNREAD -> {
                 viewHolder.itemView.text_message_out_unread.text = message.text
                 viewHolder.itemView.time_message_out_unread.text = time.toString()
             }
@@ -236,13 +330,13 @@ class MessageItem(private val message: Message, private val type: Type) : Item<V
 
     override fun getLayout(): Int {
         return when (type) {
-            Type.MSG_IN -> {
+            TypeMsg.MSG_IN_READ -> {
                 R.layout.item_incoming
             }
-            Type.MSG_OUT_READ -> {
+            TypeMsg.MSG_OUT_READ -> {
                 R.layout.item_outcoming_read
             }
-            Type.MSG_OUT_UNREAD -> {
+            TypeMsg.MSG_OUT_UNREAD -> {
                 R.layout.item_outcoming_unread
             }
         }
