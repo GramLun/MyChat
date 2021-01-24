@@ -16,12 +16,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.moskofidi.mychat.R
-import com.moskofidi.mychat.adapters.UsersListAdapter
+
 import com.moskofidi.mychat.dataClass.User
 import com.moskofidi.mychat.listener.ConnectionListener
-import com.moskofidi.mychat.room.users.UsersApplication
-import com.moskofidi.mychat.room.users.UsersViewModel
-import com.moskofidi.mychat.room.users.UsersViewModelFactory
+
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
